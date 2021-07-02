@@ -1,0 +1,99 @@
+# -*- mode: ruby -*- 
+# vi: set ft=ruby : 
+hosts = [
+   {"name" => "hadoop-controller", "ip"=>"192.168.78.51"}
+]
+   
+
+
+
+
+StrictHostKeyChecking = "false"
+
+
+
+# Ansible& Vagrant https://github.com/geerlingguy/ansible-vagrant-examples/tree/master/kubernetes
+# http://michele.sciabarra.com/2018/02/12/devops/Kubernetes-with-KubeAdm-Ansible-Vagrant/
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+Vagrant.configure("2") do |config|
+
+  
+   
+   
+   # location of SSH-keys
+   #
+   # Vagrant will automatically insert a keypair to use for SSH, 
+   # replacing Vagrant's default insecure key inside the machine if detected
+   # set to false, if using own ssh-keys
+   #config.ssh.insert_key = false # 1
+   
+   #  Only use Vagrant-provided SSH private keys
+   config.ssh.keys_only=false
+   config.ssh.password="vagrant"
+   config.ssh.username="vagrant"
+   #config.ssh.private_key_path = ["#{ssh_keys_dir}/id_rsa"] # 2
+   #
+ 
+   config.ssh.forward_agent = false 
+ 
+   check_guest_additions = false 
+   functional_vboxsf     = false 
+ 
+   config.vm.box = "bento/ubuntu-20.04"
+   
+   (1..hosts.length).each do |index| 
+     
+     
+     name="#{hosts.at(index-1)['name']}"  
+     ip="#{hosts.at(index-1)['ip']}"
+ 
+     config.vm.define "#{name}" do |machine| 
+     config.vm.synced_folder "../cluster", "/cluster"
+
+	
+       ip="#{hosts.at(index-1)['ip']}" 
+       machine.vm.hostname = "#{name}" 
+       machine.vm.network :private_network, ip: "#{ip}"  
+       config.vm.network "forwarded_port", guest: 8001, host: 8001, auto_correct: true
+       machine.vm.provider "virtualbox" do |v| 
+          v.name = name 
+          v.memory=2048
+          v.cpus=2
+          v.customize ["modifyvm", :id,"--cpuexecutioncap", "80"]
+       end 
+       
+
+
+
+       # Vagrant's "change host name" sets the short host name.
+       # Before we undo the /etc/hosts silliness (see below) let's
+       # reset /etc/hostname to the *full* host name
+       # see https://stackoverflow.com/questions/33117939/vagrant-do-not-map-hostname-to-loopback-address-in-etc-hosts
+        
+       machine.vm.provision :shell do |s1|
+             s1.inline="sudo hostnamectl set-hostname #{name}"
+       end
+      
+       machine.vm.provision :shell , inline: <<-SHELL
+                sudo sed -i "s/127.0.1.1/#127.0.1.1/" /etc/hosts
+                echo "127.0.1.1 disabled"
+				# setze vorherigen IP und name in meine /etc/hosts
+                echo "#{ip}    #{name}    #{name}" | sudo tee -a /etc/hosts
+         SHELL
+
+       machine.vm.provision "shell", name: "Installation von docker" , inline: <<-SCRIPT
+            /vagrant/install_docker.sh
+          SCRIPT
+      
+       # Install Ansible at the node marked as ansible_master
+      
+     
+     end # define machine
+   end # (1..hosts.length).each do |index|
+   
+  
+end ## Vagrant.configure

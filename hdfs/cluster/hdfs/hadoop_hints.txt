@@ -1,0 +1,11 @@
+docker --version sollte >= 19
+
+docker-compose build
+
+docker-compose up -d 
+
+http:/$DOCKER_HOST:8088/filebrowser
+
+docker volume list --filter "label=com.docker.compose.project=hdfs" --format "{{.Name}}"
+
+docker volume rm --force $(docker volume list --filter "label=com.docker.compose.project=hdfs" --format "{{.Name}}")
