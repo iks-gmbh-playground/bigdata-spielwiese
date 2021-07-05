@@ -55,4 +55,3 @@ volumes:
   hadoop_namenode:
   hadoop_datanode_1:
   hadoop_datanode_2:
-  hadoop_historyserver:
