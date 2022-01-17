@@ -1,4 +1,4 @@
-version: "3"
+version: "3.3"
 
 services:
   namenode:
@@ -55,3 +55,8 @@ volumes:
   hadoop_namenode:
   hadoop_datanode_1:
   hadoop_datanode_2:
+  
+networks:
+  default:
+      external: 
+         name: "bigdata-spielwiese-network"
