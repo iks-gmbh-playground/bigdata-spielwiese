@@ -15,7 +15,7 @@ docker network create bigdata-spielwiese-network
 
 Das erste System, welches in diesem Cluster installiert wird, ist HDFS. Alle Sourcen liegen unter [./hdfs]().
 
-Es wird eine Cluster bestehend aus einem Namenode und zwei Datanode installiert. Die Installation basiert auf HDFS v 3.2.1 
+Es wird ein Cluster bestehend aus einem Namenode und zwei Datanode installiert. Die Installation basiert auf HDFS v 3.2.1 
 
 Vor dem ersten Start
 
@@ -35,7 +35,7 @@ Löschen
 docker-compose down –remove-orphans
 ```
 
-Um die Testdaten in HDFS zu laden , wird wie folgt vorgegangen
+Um die Testdaten in HDFS zu laden , wird wie folgt vorgegangen:
 
 ```
 docker cp ../testdaten/movielens/ml-latest-small/ namenode:/tmp
